@@ -1,0 +1,21 @@
+{
+  "name": "elibrary-pweb",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/bun": "latest",
+    "@types/jsonwebtoken": "^9.0.9"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.6.0",
+    "bcrypt": "^5.1.1",
+    "hono": "^4.7.7",
+    "jsonwebtoken": "^9.0.2",
+    "prisma": "^6.6.0"
+  }
+}
