@@ -157,12 +157,12 @@ authRouter.delete('/users/:id', authMiddleware, async (c) => {
   return c.json({ message: 'User deleted successfully' })
 })
 
-// DELETE ALL regular users (admin only)
+// DELETE ALL regular users (admin only) - pakai query param
 authRouter.delete('/delete-all-users', authMiddleware, adminOnly, async (c) => {
-  const { confirm } = await c.req.json<{ confirm: string }>()
+  const confirm = c.req.query('confirm')
 
   if (confirm !== 'yes') {
-    return c.json({ error: 'Konfirmasi gagal. Kirim { "confirm": "yes" } untuk menghapus semua user.' }, 400)
+    return c.json({ error: 'Konfirmasi gagal. Tambahkan ?confirm=yes pada URL.' }, 400)
   }
 
   const deleted = await prisma.user.deleteMany({
