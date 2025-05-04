@@ -70,7 +70,7 @@ authRouter.post('/login', async (c) => {
   const token = jwt.sign(
     { id: user.id, role: user.role },
     jwtSecret,
-    { expiresIn: '1h' }
+    { expiresIn: '24h' }
   )
 
   return c.json({ message: 'Login successful', token })
