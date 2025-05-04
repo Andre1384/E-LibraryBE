@@ -59,9 +59,9 @@ bookRouter.get('/:id', authMiddleware, async (c) => {
 bookRouter.post('/', authMiddleware, adminOnly, async (c) => {
   const { title, author, description, stock } = await c.req.json()
 
-  // Validate stock to be a number
+  // Validate stock to be a positive integer or 0
   if (typeof stock !== 'number' || stock < 0) {
-    return c.json({ error: 'Invalid stock value' }, 400)
+    return c.json({ error: 'Invalid stock value. It must be a number greater than or equal to 0.' }, 400)
   }
 
   const book = await prisma.book.create({
@@ -76,9 +76,9 @@ bookRouter.put('/:id', authMiddleware, adminOnly, async (c) => {
   const id = Number(c.req.param('id'))
   const { title, author, description, stock } = await c.req.json()
 
-  // Validate stock to be a number
+  // Validate stock to be a positive integer or 0
   if (typeof stock !== 'number' || stock < 0) {
-    return c.json({ error: 'Invalid stock value' }, 400)
+    return c.json({ error: 'Invalid stock value. It must be a number greater than or equal to 0.' }, 400)
   }
 
   const book = await prisma.book.update({
@@ -93,11 +93,11 @@ bookRouter.put('/:id', authMiddleware, adminOnly, async (c) => {
 bookRouter.delete('/:id', authMiddleware, adminOnly, async (c) => {
   const id = Number(c.req.param('id'))
 
-  // Validasi: Cek dulu apakah ada borrow aktif untuk buku ini
+  // Validate if the book is currently borrowed
   const activeBorrow = await prisma.borrow.findFirst({
     where: {
       bookId: id,
-      returnDate: null,
+      returnDate: null, // Check for active borrow without return date
     },
   })
 
@@ -118,7 +118,7 @@ bookRouter.get('/:id/borrows', authMiddleware, async (c) => {
 
   const borrows = await prisma.borrow.findMany({
     where: { bookId: id },
-    include: { user: true },
+    include: { user: true }, // Include user who borrowed the book
   })
 
   return c.json(borrows)
