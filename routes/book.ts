@@ -4,12 +4,25 @@ import { authMiddleware, adminOnly } from '../middlewares/authMiddleware'
 
 export const bookRouter = new Hono()
 
+function validateBookInput(data: any) {
+  const { title, author, description, stock } = data
+
+  if (!title || !author || !description) {
+    return 'Title, author, and description are required.'
+  }
+
+  if (typeof stock !== 'number' || stock < 0 || !Number.isInteger(stock)) {
+    return 'Invalid stock value. It must be an integer >= 0.'
+  }
+
+  return null
+}
+
 // Get all books - user or admin - now with pagination + search
 bookRouter.get('/', authMiddleware, async (c) => {
   const page = Number(c.req.query('page') || '1')
-  const limit = Number(c.req.query('limit') || '10')
+  const limit = Math.min(Number(c.req.query('limit') || '10'), 100)
   const search = c.req.query('search') || ''
-
   const skip = (page - 1) * limit
 
   const books = await prisma.book.findMany({
@@ -57,15 +70,17 @@ bookRouter.get('/:id', authMiddleware, async (c) => {
 
 // Create a new book - admin only
 bookRouter.post('/', authMiddleware, adminOnly, async (c) => {
-  const { title, author, description, stock } = await c.req.json()
-
-  // Validate stock to be a positive integer or 0
-  if (typeof stock !== 'number' || stock < 0) {
-    return c.json({ error: 'Invalid stock value. It must be a number greater than or equal to 0.' }, 400)
-  }
+  const body = await c.req.json()
+  const error = validateBookInput(body)
+  if (error) return c.json({ error }, 400)
 
   const book = await prisma.book.create({
-    data: { title, author, description, stock },
+    data: {
+      title: body.title,
+      author: body.author,
+      description: body.description,
+      stock: Number(body.stock),
+    },
   })
 
   return c.json({ message: 'Book created', book })
@@ -74,16 +89,22 @@ bookRouter.post('/', authMiddleware, adminOnly, async (c) => {
 // Update a book - admin only
 bookRouter.put('/:id', authMiddleware, adminOnly, async (c) => {
   const id = Number(c.req.param('id'))
-  const { title, author, description, stock } = await c.req.json()
+  const body = await c.req.json()
 
-  // Validate stock to be a positive integer or 0
-  if (typeof stock !== 'number' || stock < 0) {
-    return c.json({ error: 'Invalid stock value. It must be a number greater than or equal to 0.' }, 400)
-  }
+  const bookExists = await prisma.book.findUnique({ where: { id } })
+  if (!bookExists) return c.json({ error: 'Book not found' }, 404)
+
+  const error = validateBookInput(body)
+  if (error) return c.json({ error }, 400)
 
   const book = await prisma.book.update({
     where: { id },
-    data: { title, author, description, stock },
+    data: {
+      title: body.title,
+      author: body.author,
+      description: body.description,
+      stock: Number(body.stock),
+    },
   })
 
   return c.json({ message: 'Book updated', book })
@@ -97,7 +118,7 @@ bookRouter.delete('/:id', authMiddleware, adminOnly, async (c) => {
   const activeBorrow = await prisma.borrow.findFirst({
     where: {
       bookId: id,
-      returnDate: null, // Check for active borrow without return date
+      returnDate: null,
     },
   })
 
@@ -118,7 +139,7 @@ bookRouter.get('/:id/borrows', authMiddleware, async (c) => {
 
   const borrows = await prisma.borrow.findMany({
     where: { bookId: id },
-    include: { user: true }, // Include user who borrowed the book
+    include: { user: true },
   })
 
   return c.json(borrows)
