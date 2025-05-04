@@ -8,6 +8,10 @@ export const borrowRouter = new Hono()
 borrowRouter.post('/', authMiddleware, async (c) => {
   const { bookId } = await c.req.json<{ bookId: number }>()
   const user = c.get('user')
+  const body = await c.req.json()
+  
+  console.log('Request Body:', body)
+  console.log('Authenticated User:', user)
 
   // Validasi apakah buku sedang dipinjam
   const isBorrowed = await prisma.borrow.findFirst({

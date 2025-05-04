@@ -67,6 +67,8 @@ bookRouter.get('/:id', authMiddleware, async (c) => {
 // Create a new book - admin only
 bookRouter.post('/', authMiddleware, adminOnly, async (c) => {
   const body = await c.req.json()
+  console.log('📘 Create Book Request Body:', body) // Debug log
+
   const error = validateBookInput(body)
   if (error) return c.json({ error }, 400)
 
@@ -75,7 +77,6 @@ bookRouter.post('/', authMiddleware, adminOnly, async (c) => {
       title: body.title,
       author: body.author,
       description: body.description,
-      // Hapus stock dari sini
     },
   })
 
@@ -86,6 +87,7 @@ bookRouter.post('/', authMiddleware, adminOnly, async (c) => {
 bookRouter.put('/:id', authMiddleware, adminOnly, async (c) => {
   const id = Number(c.req.param('id'))
   const body = await c.req.json()
+  console.log('✏️ Update Book Request Body:', body) // Debug log
 
   const bookExists = await prisma.book.findUnique({ where: { id } })
   if (!bookExists) return c.json({ error: 'Book not found' }, 404)
@@ -99,7 +101,6 @@ bookRouter.put('/:id', authMiddleware, adminOnly, async (c) => {
       title: body.title,
       author: body.author,
       description: body.description,
-      // Hapus stock dari sini juga
     },
   })
 
@@ -110,7 +111,6 @@ bookRouter.put('/:id', authMiddleware, adminOnly, async (c) => {
 bookRouter.delete('/:id', authMiddleware, adminOnly, async (c) => {
   const id = Number(c.req.param('id'))
 
-  // Validate if the book is currently borrowed
   const activeBorrow = await prisma.borrow.findFirst({
     where: {
       bookId: id,
