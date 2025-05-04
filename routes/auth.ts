@@ -115,6 +115,7 @@ authRouter.patch('/users/:id', authMiddleware, async (c) => {
   }
 
   const { username, password } = await c.req.json()
+  console.log('Update data:', { username, password })
 
   const data: any = {}
   if (username) data.username = username
