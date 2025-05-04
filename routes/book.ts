@@ -59,6 +59,11 @@ bookRouter.get('/:id', authMiddleware, async (c) => {
 bookRouter.post('/', authMiddleware, adminOnly, async (c) => {
   const { title, author, description, stock } = await c.req.json()
 
+  // Validate stock to be a number
+  if (typeof stock !== 'number' || stock < 0) {
+    return c.json({ error: 'Invalid stock value' }, 400)
+  }
+
   const book = await prisma.book.create({
     data: { title, author, description, stock },
   })
@@ -70,6 +75,11 @@ bookRouter.post('/', authMiddleware, adminOnly, async (c) => {
 bookRouter.put('/:id', authMiddleware, adminOnly, async (c) => {
   const id = Number(c.req.param('id'))
   const { title, author, description, stock } = await c.req.json()
+
+  // Validate stock to be a number
+  if (typeof stock !== 'number' || stock < 0) {
+    return c.json({ error: 'Invalid stock value' }, 400)
+  }
 
   const book = await prisma.book.update({
     where: { id },
