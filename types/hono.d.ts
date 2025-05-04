@@ -1,4 +1,3 @@
-// types/hono.d.ts
 import { User } from '@prisma/client'
 
 declare module 'hono' {

@@ -1,4 +1,3 @@
-// routes/auth.ts
 import { Hono } from 'hono'
 import prisma from '../prisma/client'
 import bcrypt from 'bcrypt'

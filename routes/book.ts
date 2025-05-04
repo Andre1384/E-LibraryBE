@@ -1,4 +1,3 @@
-// routes/book.ts
 import { Hono } from 'hono'
 import prisma from '../prisma/client'
 import { authMiddleware, adminOnly } from '../middlewares/authMiddleware'
