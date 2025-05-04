@@ -20,7 +20,6 @@ model Book {
   title       String
   author      String
   description String
-  stock       Int      @default(1) // Tambahkan ini
   borrows     Borrow[]
 }
 

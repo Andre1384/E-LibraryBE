@@ -5,14 +5,10 @@ import { authMiddleware, adminOnly } from '../middlewares/authMiddleware'
 export const bookRouter = new Hono()
 
 function validateBookInput(data: any) {
-  const { title, author, description, stock } = data
+  const { title, author, description } = data
 
   if (!title || !author || !description) {
     return 'Title, author, and description are required.'
-  }
-
-  if (typeof stock !== 'number' || stock < 0 || !Number.isInteger(stock)) {
-    return 'Invalid stock value. It must be an integer >= 0.'
   }
 
   return null
@@ -79,7 +75,7 @@ bookRouter.post('/', authMiddleware, adminOnly, async (c) => {
       title: body.title,
       author: body.author,
       description: body.description,
-      stock: Number(body.stock),
+      // Hapus stock dari sini
     },
   })
 
@@ -103,7 +99,7 @@ bookRouter.put('/:id', authMiddleware, adminOnly, async (c) => {
       title: body.title,
       author: body.author,
       description: body.description,
-      stock: Number(body.stock),
+      // Hapus stock dari sini juga
     },
   })
 
