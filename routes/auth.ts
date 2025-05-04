@@ -120,12 +120,25 @@ authRouter.patch('/users/:id', authMiddleware, async (c) => {
   if (username) data.username = username
   if (password) data.password = await bcrypt.hash(password, 10)
 
-  const updatedUser = await prisma.user.update({
-    where: { id },
-    data,
-  })
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data,
+      select: {
+        id: true,
+        username: true,
+        role: true,
+      },
+    })
 
-  return c.json({ message: 'User updated', user: updatedUser })
+    return c.json({
+      message: 'User updated',
+      user: updatedUser,
+    })
+  } catch (error) {
+    console.error('Update error:', error)
+    return c.json({ error: 'Failed to update user' }, 500)
+  }
 })
 
 // DELETE user sendiri atau admin
