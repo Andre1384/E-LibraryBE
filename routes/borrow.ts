@@ -188,7 +188,6 @@ borrowRouter.get('/admin/user/:userId', authMiddleware, adminOnly, async (c) => 
   })
 })
 
-// --- Endpoint tambahan berdasarkan relasi Borrow - Book ---
 
 // Cek status buku (available atau borrowed)
 borrowRouter.get('/book/:bookId/status', authMiddleware, async (c) => {
